@@ -1,0 +1,42 @@
+@import "lib/base";
+@import "lib/var";
+
+.control_container {
+  .timer{
+    margin-left: 20rem/@psdWidth;
+  }
+  #show {
+    .rfz(60px);
+    color: red;
+  }
+  .btn_container {
+    display: inline-block;
+    width: 100rem/@psdWidth;
+    margin-top: 50rem/@psdWidth;
+    text-align: center;
+    margin-left: 30rem/@psdWidth;
+    .rfz(30px);
+    .btn {
+      width: 100rem/@psdWidth;
+      height: 100rem/@psdWidth;
+      border-radius: 50%;
+      margin-bottom: 10rem/@psdWidth;
+    }
+  }
+}
+
+#start {
+  background: #c0c0c0;
+}
+
+#stop{
+  background: red;
+}
+
+#play{
+  background: #4dc71f;
+}
+
+#upload{
+  background: #4c3621;
+}
