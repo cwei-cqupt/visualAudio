@@ -16,6 +16,7 @@ router.get('/getAudio', function(req, res, next){
         else{
             connection.query('select server_id from voice where uid=?',id, function(err, ret){
                 console.log(err);
+                connection.release();
                 if(err) res.send({err: 'database error'});
                 else res.send(ret);
             });

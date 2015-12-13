@@ -4,15 +4,17 @@ require.config({
         qrcode: 'qrcode',
         request: 'request',
         domReady: 'domReady',
-        visualAudio: 'visualAudio'
+        visualAudio: 'visualAudio',
+        peaks: 'peaks.min',
+        wavesurfer: 'wavesurfer.min'
     }
 });
 
-require(['request', 'domReady', 'visualAudio', 'qrcode'], function(request, domReady, visualAudio, QRCode){
+require(['request', 'domReady', 'visualAudio', 'qrcode', 'peaks', 'wavesurfer'], function(request, domReady, visualAudio, QRCode, Peaks, Wavesurfer){
     domReady(function(){
+        //console.log(peaks);
         //页面独立id
         var id = Date.now() + parseInt(Math.random()*10);
-        var queen = [];//队列存储 音频server_id
 
         //生成二维码
         var qrcode = document.querySelector('#qrcode');
@@ -23,13 +25,34 @@ require(['request', 'domReady', 'visualAudio', 'qrcode'], function(request, domR
             height: 100
         });
 
+        //var ctr = {
+        //    timer: null,
+        //    get isGet(){
+        //        return this._get;
+        //    },
+        //
+        //    set isGet(v){
+        //        this._get = v;
+        //        if(this._get)
+        //    },
+        //
+        //    get isPlayed(){
+        //    },
+        //
+        //    poolGetAudio: function(){
+        //    }
+        //};
+
+        var isGet = false,   //是否已经获取到
+            isPlayed = false; //是否已经播放过
+
         var audio = document.querySelector('#audio');
         var canvas = document.querySelector('#canvas');
 
         //轮询获取音频
-        poolGetAudio();
+        //poolGetAudio();
         function poolGetAudio(){
-            return request('/getAudio?id='+id,'GET', null, function(res){
+            request('/getAudio?id='+id,'GET', null, function(res){
                 var data = JSON.parse(res);
                 console.log(data);
                 if(data.server_id){
@@ -40,14 +63,16 @@ require(['request', 'domReady', 'visualAudio', 'qrcode'], function(request, domR
             });
         }
 
-        //获取acess_token
-        function getAcessToken(cb){
-            request('https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=wx573a3f616a9481da&secret=a0ce4b53e09c6d9f673c554e92d4f914', 'GET', function(res){
-                var data = JSON.parse(res);
-                cb(data.access_token);
-            });
-        }
-
+        var wavesurfer = Object.create(WaveSurfer);
+        wavesurfer.init({
+            container: '#peaks-container',
+            waveColor: 'violet',
+            progressColor: 'purple'
+        });
+        wavesurfer.on('ready', function () {
+            wavesurfer.play();
+        });
+        wavesurfer.load('upload/BEYOND-earth.mp3');
     });
 });
 

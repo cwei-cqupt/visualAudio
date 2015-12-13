@@ -15,11 +15,11 @@ var app = express();
 
 app.use(function(req, res, next){
     res.pool = mysql.createPool({
-        connectionLimit: 20,
+        connectionLimit : 10,
+        database        : 'visul_voice',
         host: '114.215.140.29',
-        database: 'visul_voice',
-        user: 'root',
-        password: '54546946'
+        user            : 'root',
+        password        : '54546946'
     });
     next();
 });

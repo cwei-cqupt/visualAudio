@@ -23,3 +23,7 @@
   height: 5px;
   border-bottom: 3px solid #fff;
 }
+#peaks-container {
+  margin-top: 30px;
+  border: 1px dashed #c0c0c0;
+}

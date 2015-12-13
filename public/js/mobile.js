@@ -17,6 +17,10 @@ require(['request', 'domReady'], function(request, domReady){
         var voice = {local_id: '', server_id: ''};
         var tm;
 
+        request('mobile/uploadAudio', 'POST', 'id=1449986036364'+'&server_id=cTSyeFbFLnpqcWKhCOklWks69tslOjhrPfe0MPWwrv2l2phzBIfYTL8rFPIFoDo8', function(res){
+            console.log(res);
+        });
+
         wx.ready(function(){
             //开始录音
             start.addEventListener('touchend', function(ev){
@@ -64,8 +68,9 @@ require(['request', 'domReady'], function(request, domReady){
                     isShowProgressTips: 1, // 默认为1，显示进度提示
                     success: function (res) {
                         voice.server_id = res.serverId; // 返回音频的服务器端ID
-                        request('/uploadAudio', 'POST', location.search.slice(1)+'&server_id='+res.server_id, function(res){
-                            console.log(res);
+                        alert('the server_id is: '+ res.serverId);
+                        request('mobile/uploadAudio', 'POST', location.search.slice(1)+'&server_id='+res.serverId, function(res){
+                            alert(res);
                         });
                     }
                 });
