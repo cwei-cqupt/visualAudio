@@ -17,9 +17,9 @@ app.use(function(req, res, next){
     res.pool = mysql.createPool({
         connectionLimit : 10,
         database        : 'visul_voice',
-        host: '114.215.140.29',
-        user            : 'root',
-        password        : '54546946'
+        host: 'host',
+        user            : 'user',
+        password        : 'password'
     });
     next();
 });
@@ -68,7 +68,7 @@ app.use(function(err, req, res, next) {
   });
 });
 
-//¸ºÔØ
+//Â¸ÂºÃ”Ã˜
 if(cluster.isMaster){
     os.cpus().forEach(function(){
         var worker = cluster.fork();
