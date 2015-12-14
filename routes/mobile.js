@@ -13,7 +13,7 @@ var upload_dir = 'public/upload';
 //获得 access_token
 router.use(function(req, res, next){
     var resp = res;
-    https.get('https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=wx9d6e4af2463ea1d0&secret=b146bfd18d7b4e18f2510c97e48d1d97', function(access_token_res){
+    https.get('access_token url', function(access_token_res){
         var access_token = '';
         access_token_res.on('data', function(chunk){
             access_token += chunk;
