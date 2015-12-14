@@ -89,10 +89,12 @@ router.post('/uploadAudio', function(req, res, next){
     *   删除文件, 如果已经在该id上传过该文件， 则此时删除该文件
     * */
     if(res.origin_server_id.length){
-        fs.unlink(path.join(upload_dir, req.body.server_id+'.mp3'), function(err){
-            if(err) res.send({err: err});
-            else next();
-        });
+        //fs.unlink(path.join(upload_dir, req.body.server_id+'.mp3'), function(err){
+        //    if(err) res.send({err: err});
+        //    else next();
+        //});
+        res.send({err: 'you have uploaded, please refresh your brower and try agin!!!'});
+        return false;
     }else next();
 
 },function(req, res, next){
@@ -116,55 +118,26 @@ router.post('/uploadAudio', function(req, res, next){
     * 上传并转换格式
     * */
     var resp = res;
-    var form = new FormData();
-    var rs = fs.createReadStream(path.join(upload_dir, req.body.server_id+'.amr'));
-    form.append("files[]", rs);
-    //form.submit('http://www.yinkeapp.com/amr/server/php/', function(err, res){
-    //    if(err) res.send({err: err});
-    //    var buf = '';
-    //    res.on('data', function(chunk){
-    //        buf+=chunk;
-    //    });
-    //    res.on('end', function(){
-    //        console.log(buf);
-    //        res.real_link = JSON.parse(buf).url;
-    //        next();
-    //    });
-    //    //res.resume();
-    //});
 
     var request = http.request({
-        method: 'POST',
-        host: 'www.yinkeapp.com',
-        path: '/amr/server/php/',
-        headers: form.getHeaders()
-    });
-    form.pipe(request);
-    request.on('response', function(res){
-        var buf = '';
-        res.on('data', function(chunk){
-            buf+=chunk;
-        });
+        hostname: '114.215.140.29',
+        port: 18080,
+        path:'/media/amr2mp3',
+        method: 'POST'
+    }, function(res){
+        var ws = fs.createWriteStream(path.join(upload_dir, req.body.server_id+'.mp3'));
+        res.pipe(ws);
         res.on('end', function(){
-            res.real_link = JSON.parse(buf)['files'][0].url.replace('.amr', '.mp3');
-            console.log(res.real_link);
+            //异步删除 amr文件节约空间
+            fs.unlink(path.join(upload_dir, req.body.server_id+'.amr'), function(err){
+                //todo
+            });
             next();
         });
     });
-},function(req, res, next){
-    //next();
-    http.get(res.real_link, function(res){
-        var rs = fs.createWriteStream(path.join(upload_dir, req.body.server_id+'.mp3'));
-        res.pipe(rs);
-        res.on('end', function(){
-            next();
-            //异步删除原来的amr文件,与后面操作无关
-            //fs.unlink(path.join(upload_dir, req.body.server_id+'.amr'), function(err){
-            //    console.log(err);
-            //});
-        });
-    });
-},function(req, res, next){
+    var rs = fs.createReadStream(path.join(upload_dir, req.body.server_id+'.amr'));
+    rs.pipe(request);
+}, function(req, res, next){
     /*
      * 存进数据库
      * */

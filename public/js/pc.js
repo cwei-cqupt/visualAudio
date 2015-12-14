@@ -13,10 +13,10 @@ require.config({
 require(['request', 'domReady', 'visualAudio', 'qrcode', 'peaks', 'wavesurfer'], function(request, domReady, visualAudio, QRCode, Peaks, Wavesurfer){
     domReady(function(){
         //console.log(peaks);
-        //“≥√Ê∂¿¡¢id
+        //È°µÈù¢Áã¨Á´ãid
         var id = Date.now() + parseInt(Math.random()*10);
 
-        //…˙≥…∂˛Œ¨¬Î
+        //ÁîüÊàê‰∫åÁª¥Á†Å
         var qrcode = document.querySelector('#qrcode');
 //        ?id='+ qrcode.getAttribute('data-id')
         new QRCode(document.getElementById("qrcode"), {
@@ -25,54 +25,38 @@ require(['request', 'domReady', 'visualAudio', 'qrcode', 'peaks', 'wavesurfer'],
             height: 100
         });
 
-        //var ctr = {
-        //    timer: null,
-        //    get isGet(){
-        //        return this._get;
-        //    },
-        //
-        //    set isGet(v){
-        //        this._get = v;
-        //        if(this._get)
-        //    },
-        //
-        //    get isPlayed(){
-        //    },
-        //
-        //    poolGetAudio: function(){
-        //    }
-        //};
-
-        var isGet = false,   // «∑Ò“—æ≠ªÒ»°µΩ
-            isPlayed = false; // «∑Ò“—æ≠≤•∑≈π˝
-
-        var audio = document.querySelector('#audio');
-        var canvas = document.querySelector('#canvas');
-
-        //¬÷—ØªÒ»°“Ù∆µ
-        //poolGetAudio();
+        //2sËΩÆËØ¢Ëé∑ÂèñÈü≥È¢ë
+        poolGetAudio();
         function poolGetAudio(){
             request('/getAudio?id='+id,'GET', null, function(res){
                 var data = JSON.parse(res);
-                console.log(data);
-                if(data.server_id){
-                    queen.push(data.server_id);
+                if(data.ret.length){
+                    initWave('upload/'+data.ret[0].server_id+'.mp3', function(wavesurfer){
+                        document.querySelector('#play-container').classList.add('active');
+                        document.querySelector('#play-container .tip').textContent = "Ëé∑Âæó‰∫Ü‰∏ä‰º†ÁöÑÈü≥È¢ëÊñá‰ª∂";
+                        document.querySelector('#play-container .play').addEventListener('click', function(){
+                            wavesurfer.play();
+                        });
+                    });
+                }else{
+                    setTimeout(poolGetAudio, 2000);
                 }
-                //2s÷Æ∫Û‘ŸªÒ»°
-                setTimeout(poolGetAudio, 2000);
             });
         }
 
-        var wavesurfer = Object.create(WaveSurfer);
-        wavesurfer.init({
-            container: '#peaks-container',
-            waveColor: 'violet',
-            progressColor: 'purple'
-        });
-        wavesurfer.on('ready', function () {
-            wavesurfer.play();
-        });
-        wavesurfer.load('upload/BEYOND-earth.mp3');
+        function initWave(src, cb){
+            var wavesurfer = Object.create(WaveSurfer);
+            wavesurfer.init({
+                container: '#peaks-container',
+                waveColor: 'violet',
+                progressColor: 'purple'
+            });
+            wavesurfer.on('ready', function () {
+                //wavesurfer.play();
+                cb(wavesurfer);
+            });
+            wavesurfer.load(src);
+        }
     });
 });
 

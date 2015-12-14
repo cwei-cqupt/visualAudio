@@ -15,31 +15,28 @@ require(['request', 'domReady'], function(request, domReady){
         var timer = document.querySelector('#show');
         var isTiming = false;
         var voice = {local_id: '', server_id: ''};
+        var uploaded = false;
         var tm;
 
-        request('mobile/uploadAudio', 'POST', 'id=1449986036364'+'&server_id=cTSyeFbFLnpqcWKhCOklWks69tslOjhrPfe0MPWwrv2l2phzBIfYTL8rFPIFoDo8', function(res){
-            console.log(res);
-        });
-
         wx.ready(function(){
-            //¿ªÊ¼Â¼Òô
+            //å¼€å§‹å½•éŸ³
             start.addEventListener('touchend', function(ev){
                 if(isTiming) return false;
                 isTiming = true;
                 cltimer();
-                wx.startRecord({  //¿ªÊ¼Â¼ÖÆ
+                wx.startRecord({  //å¼€å§‹å½•åˆ¶
                     cancel: function () {
-                        alert('ÇëÄúÊÚÈ¨Â¼Òô');
+                        alert('è¯·æ‚¨æˆæƒå½•éŸ³');
                     },
                     success: function (){
                         timing();
                     }
                 });
             });
-            //Í£Ö¹Â¼Òô
+            //åœæ­¢å½•éŸ³
             stop.addEventListener('touchend', function () {
                 if(!isTiming) return false;
-                wx.stopRecord({   //Í£Ö¹Â¼ÖÆ
+                wx.stopRecord({   //åœæ­¢å½•åˆ¶
                     success: function (res) {
                         isTiming = false;
                         stimer();
@@ -48,49 +45,57 @@ require(['request', 'domReady'], function(request, domReady){
                 });
             });
 
-            //²¥·Å
+            //æ’­æ”¾
             play.addEventListener('touchend', function(){
                 if(isTiming || !voice.local_id) return;
                 wx.playVoice({
-                    localId: voice.local_id // ĞèÒª²¥·ÅµÄÒôÆµµÄ±¾µØID£¬ÓÉstopRecord½Ó¿Ú»ñµÃ
+                    localId: voice.local_id // éœ€è¦æ’­æ”¾çš„éŸ³é¢‘çš„æœ¬åœ°IDï¼Œç”±stopRecordæ¥å£è·å¾—
                 });
             });
 
-            //ÉÏ´«
+            //ä¸Šä¼ 
             upload.addEventListener('touchend', function(){
                 if(isTiming) return;
                 if(!voice.local_id) {
-                    alert('ÇëÂ¼Òô!!!');
+                    alert('è¯·å½•éŸ³!!!');
                     return false;
                 }
-                wx.uploadVoice({
-                    localId: voice.local_id, // ĞèÒªÉÏ´«µÄÒôÆµµÄ±¾µØID£¬ÓÉstopRecord½Ó¿Ú»ñµÃ
-                    isShowProgressTips: 1, // Ä¬ÈÏÎª1£¬ÏÔÊ¾½ø¶ÈÌáÊ¾
-                    success: function (res) {
-                        voice.server_id = res.serverId; // ·µ»ØÒôÆµµÄ·şÎñÆ÷¶ËID
-                        alert('the server_id is: '+ res.serverId);
-                        request('mobile/uploadAudio', 'POST', location.search.slice(1)+'&server_id='+res.serverId, function(res){
-                            alert(res);
-                        });
-                    }
-                });
+                if(!uploaded){
+                    wx.uploadVoice({
+                        localId: voice.local_id, // éœ€è¦ä¸Šä¼ çš„éŸ³é¢‘çš„æœ¬åœ°IDï¼Œç”±stopRecordæ¥å£è·å¾—
+                        isShowProgressTips: 1, // é»˜è®¤ä¸º1ï¼Œæ˜¾ç¤ºè¿›åº¦æç¤º
+                        success: function (res) {
+                            voice.server_id = res.serverId; // è¿”å›éŸ³é¢‘çš„æœåŠ¡å™¨ç«¯ID
+                            //alert('the server_id is: '+ res.serverId);
+                            request('mobile/uploadAudio', 'POST', location.search.slice(1)+'&server_id='+res.serverId, function(res){
+                                var data = JSON.parse(res);
+                                if(data.err != 'ok'){
+                                    alert(data.err || 'upload error!!!');
+                                }else{
+                                    alert("upload success!!!");
+                                    uploaded = true;
+                                }
+                            });
+                        }
+                    });
+                }else{
+                    alert("æ¯ä¸ªé¡µé¢IDåªèƒ½ä¸Šä¼ ä¸€ä¸ª");
+                }
             });
 
         });
 
-        //¼ÆÊ±
+        //è®¡æ—¶
         function timing(){
            tm = setInterval(function(){
                timer.textContent = +timer.textContent + 1;
            }, 1000);
         }
-
-        //Çå³ı¼ÆÊ±
+        //æ¸…é™¤è®¡æ—¶
         function cltimer(){
             timer.textContent = 0;
         }
-
-        //Í£Ö¹¼ÆÊ±
+        //åœæ­¢è®¡æ—¶
         function stimer(){
             clearInterval(tm);
         }

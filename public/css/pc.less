@@ -31,3 +31,24 @@
   margin-top: 30px;
   border: 1px dashed #c0c0c0;
 }
+
+#play-container {
+  width: 100px;
+  margin: 50px auto;
+  .play {
+    padding: 6px 0;
+    text-align: center;
+    background: #c0c0c0;
+    border-radius: 5px;
+  }
+  &.active {
+    .tip {
+      color: red;
+    }
+    .play {
+      background: #4dc71f;
+      color: #ffffff;
+      cursor: pointer;
+    }
+  }
+}
