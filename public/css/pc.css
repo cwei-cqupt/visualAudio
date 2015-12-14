@@ -37,11 +37,11 @@
   background: #c0c0c0;
   border-radius: 5px;
 }
-#play-container.active .tip {
-  color: red;
-}
-#play-container.active .play {
+#play-container .play.active {
   background: #4dc71f;
   color: #ffffff;
   cursor: pointer;
+}
+#play-container .tip.active {
+  color: red;
 }

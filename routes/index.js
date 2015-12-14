@@ -12,8 +12,10 @@ router.get('/', function(req, res, next) {
 * */
 router.get('/getAudio', function(req, res, next){
     var resp = res;
-    res.pool.query('select server_id from voice where uid=?',req.query.id,function(err, ret){
-        resp.send({err: err, ret: ret});
+    res.pool.getConnection(function(err, connection){
+        connection.query('select server_id,time from voice where uid=?',req.query.id,function(err, ret){
+            resp.send({err: err, ret: ret});
+        });
     });
 });
 

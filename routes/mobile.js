@@ -13,7 +13,7 @@ var upload_dir = 'public/upload';
 //获得 access_token
 router.use(function(req, res, next){
     var resp = res;
-    https.get('access_token url', function(access_token_res){
+    https.get('https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=wx9d6e4af2463ea1d0&secret=b146bfd18d7b4e18f2510c97e48d1d97', function(access_token_res){
         var access_token = '';
         access_token_res.on('data', function(chunk){
             access_token += chunk;
@@ -77,24 +77,33 @@ router.post('/uploadAudio', function(req, res, next){
     if(!req.body.id){
         res.send({err: 'no id!!!'});
     }
-    res.pool.query('select server_id from voice where uid=?',req.body.id, function(err, ret){
-        if(err) res.send({err: err});
-        else{
-            res.origin_server_id = ret;
-            next();
-        }
+    var resp = res;
+
+    res.pool.getConnection(function(err, connection){
+        connection.query('select server_id from voice where uid=?',req.body.id, function(err, ret){
+            connection.release();
+            if(err) resp.send({err: err});
+            else{
+                resp.origin_server_id = ret;
+                next();
+            }
+        });
     });
 }, function(req, res, next){
     /*
     *   删除文件, 如果已经在该id上传过该文件， 则此时删除该文件
     * */
     if(res.origin_server_id.length){
-        //fs.unlink(path.join(upload_dir, req.body.server_id+'.mp3'), function(err){
-        //    if(err) res.send({err: err});
-        //    else next();
-        //});
-        res.send({err: 'you have uploaded, please refresh your brower and try agin!!!'});
-        return false;
+        fs.stat(path.join(upload_dir, res.origin_server_id[0].server_id+'.mp3'), function(err, state){
+            if(state){
+                fs.unlink(path.join(upload_dir, res.origin_server_id[0].server_id+'.mp3'), function(err){
+                    //todo
+                    next();
+                });
+            }else next();
+        });
+        //res.send({err: 'you have uploaded, please refresh your brower and try agin!!!'});
+        //return false;
     }else next();
 
 },function(req, res, next){
@@ -141,10 +150,24 @@ router.post('/uploadAudio', function(req, res, next){
     /*
      * 存进数据库
      * */
-    res.pool.query("insert into voice(uid, server_id) values(?,?)", [req.body.id, req.body.server_id], function(err, ret){
-        if(err)res.send({err: err});
-        else res.send({err: 'ok'});
+    var resp = res;
+    res.pool.getConnection(function(err, connection){
+        if(res.origin_server_id.length){   //如果原来有直接更新数据
+            connection.query("update voice set server_id=?, time=? where uid=?", [req.body.server_id, Date.now()+'', req.body.id], function(err, ret){
+                connection.release();
+                if(err)resp.send({err: err});
+                else resp.send({err: 'ok'});
+            });
+        }else{
+            connection.query("insert into voice(uid, server_id, time) values(?,?,?)", [req.body.id, req.body.server_id,Date.now()+''], function(err, ret){
+                connection.release();
+                if(err)resp.send({err: err});
+                else resp.send({err: 'ok'});
+            });
+        }
     });
 });
 
 module.exports = router;
+
+//http://file.api.weixin.qq.com/cgi-bin/media/get?access_token=JQiT0oTL9yKcECTRqv8ZKld4ayXB9ZCNwfhXecA6gLA6u8rBzyxqf2zZldxvqTZdtMe6j8lYa-O3Z0Sx7GwDEeQ7-Ns1WT-3bI-_Yodjw60IERaAFAOKX&media_id=KyOXP8KsP2QCC8r6pH8iBGCKTWgC5pA7uTe5-Qu6EhAA3QRZdL1yASultE2e1UrI

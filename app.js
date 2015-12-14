@@ -15,11 +15,11 @@ var app = express();
 
 app.use(function(req, res, next){
     res.pool = mysql.createPool({
-        connectionLimit : 10,
+        connectionLimit : 500,
         database        : 'visul_voice',
-        host: 'host',
-        user            : 'user',
-        password        : 'password'
+        host: '114.215.140.29',
+        user            : 'root',
+        password        : '54546946'
     });
     next();
 });
@@ -68,7 +68,7 @@ app.use(function(err, req, res, next) {
   });
 });
 
-//Â¸ÂºÃ”Ã˜
+//¸ºÔØ
 if(cluster.isMaster){
     os.cpus().forEach(function(){
         var worker = cluster.fork();

@@ -15,7 +15,7 @@ require(['request', 'domReady'], function(request, domReady){
         var timer = document.querySelector('#show');
         var isTiming = false;
         var voice = {local_id: '', server_id: ''};
-        var uploaded = false;
+        //var uploaded = false;
         var tm;
 
         wx.ready(function(){
@@ -60,27 +60,23 @@ require(['request', 'domReady'], function(request, domReady){
                     alert('请录音!!!');
                     return false;
                 }
-                if(!uploaded){
-                    wx.uploadVoice({
-                        localId: voice.local_id, // 需要上传的音频的本地ID，由stopRecord接口获得
-                        isShowProgressTips: 1, // 默认为1，显示进度提示
-                        success: function (res) {
-                            voice.server_id = res.serverId; // 返回音频的服务器端ID
-                            //alert('the server_id is: '+ res.serverId);
-                            request('mobile/uploadAudio', 'POST', location.search.slice(1)+'&server_id='+res.serverId, function(res){
-                                var data = JSON.parse(res);
-                                if(data.err != 'ok'){
-                                    alert(data.err || 'upload error!!!');
-                                }else{
-                                    alert("upload success!!!");
-                                    uploaded = true;
-                                }
-                            });
-                        }
-                    });
-                }else{
-                    alert("每个页面ID只能上传一个");
-                }
+                wx.uploadVoice({
+                    localId: voice.local_id, // 需要上传的音频的本地ID，由stopRecord接口获得
+                    isShowProgressTips: 1, // 默认为1，显示进度提示
+                    success: function (res) {
+                        voice.server_id = res.serverId; // 返回音频的服务器端ID
+                        //alert('the server_id is: '+ res.serverId);
+                        request('mobile/uploadAudio', 'POST', location.search.slice(1)+'&server_id='+res.serverId, function(res){
+                            var data = JSON.parse(res);
+                            if(data.err != 'ok'){
+                                alert(JSON.stringify(data.err) || 'upload error!!!');
+                            }else{
+                                alert("upload success!!!");
+                                uploaded = true;
+                            }
+                        });
+                    }
+                });
             });
 
         });
